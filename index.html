@@ -1,104 +1,748 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamburgueria Premium | Cardápio Digital</title>
-    <style>
-        :root { --bg: #142722; --mango: #FFB627; --paper: #F4EFE1; --papaya: #E8552F; --sage: #7FA595; }
-        body { background: var(--bg); color: var(--paper); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding-bottom: 120px; }
-        
-        /* Banner */
-        .hero { height: 220px; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800'); background-size: cover; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 28px; font-weight: bold; }
-        
-        /* Menu */
-        .section-title { padding: 20px 20px 0; color: var(--mango); font-size: 20px; border-bottom: 1px solid #333; }
-        .item { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid #333; }
-        .item-info h3 { margin: 0 0 5px; font-size: 17px; }
-        .item-info p { margin: 0; font-size: 13px; color: var(--sage); }
-        .item-price { margin-top: 5px; color: var(--mango); font-weight: bold; }
-        
-        /* Controles */
-        .controls { display: flex; align-items: center; gap: 15px; }
-        .qty-btn { background: var(--mango); border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; color: var(--bg); }
-        
-        /* Carrinho Fixo */
-        .cart-bar { position: fixed; bottom: 0; width: 100%; background: var(--papaya); color: white; padding: 18px; text-align: center; font-weight: bold; cursor: pointer; box-shadow: 0 -5px 15px rgba(0,0,0,0.3); }
-        
-        /* Modal */
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
-        .modal { background: #1C332C; padding: 30px; border-radius: 15px; width: 100%; max-width: 400px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
-        .btn-full { width: 100%; padding: 15px; border-radius: 5px; border: none; background: var(--mango); color: var(--bg); font-weight: bold; cursor: pointer; margin-top: 10px; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hamburgueria Premium — Peça pelo WhatsApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #142722;
+    --bg-raised: #1C332C;
+    --paper: #F4EFE1;
+    --mango: #FFB627;
+    --papaya: #E8552F;
+    --sage: #7FA595;
+    --line: rgba(244,239,225,0.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background: var(--bg);
+    color: var(--paper);
+    font-family:'Work Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding-bottom: 120px;
+  }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    letter-spacing:0.14em;
+    text-transform:uppercase;
+    color: var(--sage);
+  }
+
+  /* Banner Slider no Topo */
+  .hero-slider{
+    position: relative;
+    width: 100%;
+    height: 190px;
+    overflow: hidden;
+    background: #0b1714;
+  }
+  .slide{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+  }
+  .slide.active{
+    opacity: 1;
+  }
+  .slider-overlay{
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(20,39,34,0.2) 0%, rgba(20,39,34,0.95) 100%);
+  }
+  .slider-dots{
+    position: absolute;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+    z-index: 2;
+  }
+  .dot-indicator{
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(244,239,225,0.35);
+    transition: all .3s ease;
+  }
+  .dot-indicator.active{
+    background: var(--mango);
+    width: 18px;
+    border-radius: 4px;
+  }
+
+  header{
+    padding: 16px 20px 18px;
+    border-bottom: 1px solid var(--line);
+  }
+  header h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size: 32px;
+    line-height:1.05;
+    margin-top:6px;
+    color: var(--paper);
+  }
+  header h1 span{ color: var(--mango); font-style: italic; font-weight: 600; }
+  header p{
+    margin-top:8px;
+    color: var(--sage);
+    font-size:13.5px;
+    max-width: 34ch;
+  }
+  .status{
+    display:inline-flex; align-items:center; gap:6px;
+    margin-top:12px; font-size:12px;
+    font-family:'JetBrains Mono', monospace;
+  }
+  .dot{width:7px; height:7px; border-radius:50%;}
+  .dot.open{background:#5FE38A; box-shadow:0 0 8px #5FE38A;}
+  .dot.closed{background:#E8552F; box-shadow:0 0 8px #E8552F;}
+
+  /* Barra de Categorias Fixa (Abas) */
+  .category-nav-wrap{
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: rgba(20, 39, 34, 0.96);
+    backdrop-filter: blur(8px);
+    border-bottom: 1px solid var(--line);
+    padding: 10px 16px;
+  }
+  .category-nav{
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .category-nav::-webkit-scrollbar{ display: none; }
+  .cat-tab-btn{
+    flex-shrink: 0;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    padding: 7px 14px;
+    color: var(--paper);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all .2s ease;
+  }
+  .cat-tab-btn:hover, .cat-tab-btn.active{
+    background: var(--mango);
+    color: var(--bg);
+    border-color: var(--mango);
+    font-weight: 600;
+  }
+
+  section{ padding: 22px 20px 6px; }
+  .cat-title{
+    font-family:'Fraunces', serif;
+    font-size: 20px;
+    font-weight:600;
+    color: var(--mango);
+    margin-bottom: 14px;
+    display:flex; align-items:baseline; gap:10px;
+  }
+  .cat-title::after{
+    content:"";
+    flex:1;
+    height:1px;
+    background: var(--line);
+  }
+
+  .item{
+    display:flex;
+    gap:14px;
+    align-items:center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .thumb{
+    width:56px; height:56px; border-radius:12px;
+    flex-shrink:0;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+    background: linear-gradient(155deg, var(--bg-raised), #10221D);
+    border: 1px solid var(--line);
+  }
+  .item-info{ flex:1; min-width:0; }
+  .item-info h3{ font-size:15px; font-weight:500; color:var(--paper); }
+  .item-info p{ font-size:12.5px; color: var(--sage); margin-top:3px; line-height:1.4; }
+  .price{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    color: var(--paper);
+    margin-top:6px;
+  }
+
+  .item-control{
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+  .qty-btn{
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--mango);
+    background: transparent;
+    color: var(--mango);
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s ease;
+  }
+  .qty-btn:active{ transform: scale(0.9); }
+  .qty-btn.add{ background: var(--mango); color: var(--bg); font-weight: bold; }
+  .qty-count{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    min-width: 18px;
+    text-align: center;
+    display: none;
+  }
+
+  /* Modal de Customização / Adicionais */
+  .custom-overlay{
+    position: fixed; inset:0;
+    background: rgba(10,18,15,0.7);
+    display:flex; align-items:flex-end;
+    opacity:0; pointer-events:none;
+    transition: opacity .2s ease;
+    z-index: 25;
+  }
+  .custom-overlay.show{ opacity:1; pointer-events:auto; }
+  .custom-sheet{
+    width:100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--bg-raised);
+    border-radius: 20px 20px 0 0;
+    padding: 16px 20px 24px;
+    transform: translateY(12px);
+    transition: transform .2s ease;
+  }
+  .custom-overlay.show .custom-sheet{ transform: translateY(0); }
+  .custom-title{
+    font-family: 'Fraunces', serif;
+    font-size: 19px;
+    color: var(--paper);
+    margin-bottom: 4px;
+  }
+  .custom-desc{ font-size: 12.5px; color: var(--sage); margin-bottom: 16px; }
+  .custom-opt-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 13.5px;
+  }
+  .custom-opt-row label{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+  }
+
+  /* Rodapé */
+  footer{
+    margin-top: 30px;
+    padding: 24px 20px 40px;
+    border-top: 1px solid var(--line);
+    text-align: center;
+  }
+  .footer-restaurant{
+    font-size: 12.5px;
+    color: var(--sage);
+    margin-bottom: 12px;
+  }
+  .footer-actions{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .agency-link{
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 18px;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    text-decoration: none;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .agency-link:hover{
+    border-color: var(--mango);
+    transform: translateY(-2px);
+  }
+  .agency-tag{
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sage);
+  }
+  .agency-name{
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--mango);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .admin-btn{
+    background: transparent;
+    border: 1px dashed var(--line);
+    color: var(--sage);
+    border-radius: 8px;
+    padding: 6px 12px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    cursor: pointer;
+  }
+
+  .cart-bar{
+    position: fixed;
+    left:16px; right:16px; bottom:16px;
+    background: var(--papaya);
+    border-radius: 16px;
+    padding: 14px 16px;
+    display:flex; align-items:center; justify-content:space-between;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
+    opacity:0;
+    transform: translateY(20px);
+    pointer-events:none;
+    transition: all .25s ease;
+    z-index: 10;
+  }
+  .cart-bar.show{ opacity:1; transform:translateY(0); pointer-events:auto; }
+  .cart-left{ display:flex; flex-direction:column; }
+  .cart-left span:first-child{ font-size:11px; color: rgba(244,239,225,0.75); font-family:'JetBrains Mono', monospace; }
+  .cart-left span:last-child{ font-size:16px; font-weight:600; font-family:'JetBrains Mono', monospace; }
+  .cart-btn{
+    background: var(--paper);
+    color: var(--papaya);
+    border:none;
+    border-radius:10px;
+    padding: 10px 16px;
+    font-weight:600;
+    font-size:13.5px;
+    display:flex; align-items:center; gap:6px;
+    cursor:pointer;
+  }
+
+  .overlay{
+    position: fixed; inset:0;
+    background: rgba(10,18,15,0.6);
+    display:flex; align-items:flex-end;
+    opacity:0; pointer-events:none;
+    transition: opacity .2s ease;
+    z-index: 20;
+  }
+  .overlay.show{ opacity:1; pointer-events:auto; }
+
+  .sheet{
+    width:100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background: var(--bg-raised);
+    border-radius: 20px 20px 0 0;
+    padding: 12px 20px 24px;
+    transform: translateY(12px);
+    transition: transform .2s ease;
+  }
+  .overlay.show .sheet{ transform: translateY(0); }
+
+  .sheet-handle{
+    width:36px; height:4px; border-radius:2px;
+    background: var(--line);
+    margin: 4px auto 16px;
+  }
+  .sheet h2{
+    font-family:'Fraunces', serif;
+    font-size:20px; font-weight:600;
+    color: var(--paper);
+  }
+  .sheet-sub{
+    font-size:12.5px; color: var(--sage);
+    margin-top:4px; margin-bottom:14px;
+  }
+
+  .form-section{
+    margin-bottom: 14px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 12px;
+  }
+  .form-group{
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .form-group label{
+    font-size: 11px;
+    color: var(--sage);
+    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase;
+  }
+  .app-input, .app-textarea{
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--paper);
+    font-family: 'Work Sans', sans-serif;
+    font-size: 13.5px;
+    outline: none;
+    width: 100%;
+  }
+  .app-textarea{
+    resize: vertical;
+    min-height: 55px;
+  }
+  .app-input:focus, .app-textarea:focus{
+    border-color: var(--mango);
+  }
+
+  .coupon-row{
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+  }
+  .coupon-btn{
+    background: var(--mango);
+    color: var(--bg);
+    border: none;
+    border-radius: 8px;
+    padding: 0 14px;
+    font-weight: 600;
+    font-size: 12.5px;
+    cursor: pointer;
+  }
+  .coupon-feedback{
+    font-size: 11px;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .coupon-feedback.success{ color: #5FE38A; }
+  .coupon-feedback.error{ color: #FF6B6B; }
+
+  .sheet-items-list{
+    margin-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sheet-item-row{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    padding-bottom: 6px;
+    border-bottom: 1px dashed var(--line);
+  }
+  .sheet-item-ctrls{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .sheet-qty-btn{
+    width: 24px;
+    height: 24px;
+    border-radius: 4px;
+    border: 1px solid var(--line);
+    background: var(--bg-raised);
+    color: var(--paper);
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+  }
+
+  .order-summary{
+    background: rgba(0,0,0,0.15);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+  }
+  .summary-row{
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+    color: var(--sage);
+  }
+  .summary-row.total{
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--line);
+    color: var(--paper);
+    font-weight: 600;
+    font-size: 14px;
+  }
+
+  .pay-options{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .pay-opt{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 11px 14px;
+    color: var(--paper);
+    font-family:'Work Sans', sans-serif;
+    font-size:14px;
+    font-weight:500;
+    cursor:pointer;
+    text-align:left;
+    transition: border-color .15s ease;
+  }
+  .pay-opt.active{
+    border-color: var(--mango);
+    background: rgba(255,182,39,0.08);
+  }
+  .pay-icon{ font-size:16px; }
+
+  .pix-box, .cash-box{
+    margin-top: 8px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height .25s ease;
+  }
+  .pix-box.show{ max-height: 100px; }
+  .cash-box.show{ max-height: 140px; }
+
+  .pix-key{
+    margin-top:6px;
+    display:flex; align-items:center; justify-content:space-between;
+    background: var(--bg);
+    border: 1px dashed var(--sage);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    cursor:pointer;
+    word-break: break-all;
+  }
+  .copy-hint{ color: var(--mango); font-size:11px; margin-left: 8px; flex-shrink: 0; }
+
+  .cash-inputs-group{
+    margin-top: 6px;
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+  .cash-toggle{
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+  }
+  .cash-toggle label{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+  }
+
+  .confirm-btn{
+    width:100%;
+    margin-top:16px;
+    background: var(--papaya);
+    color: var(--paper);
+    border:none;
+    border-radius: 12px;
+    padding: 15px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition: opacity .15s ease;
+  }
+  .confirm-btn:disabled{
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Modal de Painel de Pedidos (Admin) */
+  .admin-overlay{
+    position: fixed; inset:0;
+    background: rgba(10,18,15,0.7);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition: opacity .2s ease;
+    z-index: 30;
+    padding: 16px;
+  }
+  .admin-overlay.show{ opacity:1; pointer-events:auto; }
+  .admin-modal{
+    width: 100%;
+    max-width: 440px;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: var(--bg-raised);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .admin-order-card{
+    background: var(--bg);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+</style>
 </head>
 <body>
 
-    <div class="hero">Hamburgueria Premium</div>
+<!-- Slider de Imagens no Topo -->
+<div class="hero-slider">
+  <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" alt="Hambúrguer Artesanal" class="slide active">
+  <img src="https://images.unsplash.com/photo-1576107232684-1279f3908594?auto=format&fit=crop&w=800&q=80" alt="Batata Frita Crocante" class="slide">
+  <img src="https://images.unsplash.com/photo-1586190848861-99aa4a171e90?auto=format&fit=crop&w=800&q=80" alt="Burgers e Acompanhamentos" class="slide">
+  <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&fit=crop&w=800&q=80" alt="Lanches Especiais" class="slide">
+  
+  <div class="slider-overlay"></div>
+  <div class="slider-dots" id="sliderDots">
+    <div class="dot-indicator active"></div>
+    <div class="dot-indicator"></div>
+    <div class="dot-indicator"></div>
+    <div class="dot-indicator"></div>
+  </div>
+</div>
 
-    <div class="section-title">Nossos Hamburgueres</div>
-    <div class="item">
-        <div class="item-info"><h3>Premium Clássico</h3><p>Blend 160g, cheddar, alface e molho.</p><div class="item-price">R$ 22,00</div></div>
-        <div class="controls"><button class="qty-btn" onclick="addToCart('Premium Clássico', 22)">+</button></div>
+<header>
+  <div class="eyebrow" id="headerCity">Turilândia · MA</div>
+  <h1 id="headerName">Hamburgueria <span>Premium</span></h1>
+  <p id="headerBio">Hambúrguer artesanal, brasa e molhos especiais. Monte seu pedido e envie direto para o WhatsApp.</p>
+  <div class="status" id="storeStatusWrap">
+    <span class="dot" id="storeStatusDot"></span>
+    <span id="storeStatusText">Carregando status...</span>
+  </div>
+</header>
+
+<!-- Navegação Rápida por Categorias -->
+<div class="category-nav-wrap">
+  <div class="category-nav">
+    <a href="#cat-hamburgueres" class="cat-tab-btn active">🍔 Hambúrgueres</a>
+    <a href="#cat-porcoes" class="cat-tab-btn">🍟 Porções</a>
+    <a href="#cat-bebidas" class="cat-tab-btn">🥤 Bebidas</a>
+  </div>
+</div>
+
+<!-- Seção: Hambúrgueres -->
+<section id="cat-hamburgueres">
+  <div class="cat-title">Hambúrgueres</div>
+
+  <div class="item" data-id="h1" data-name="Premium Clássico" data-price="22">
+    <div class="thumb">🍔</div>
+    <div class="item-info">
+      <h3>Premium Clássico</h3>
+      <p>Blend 160g, queijo cheddar, alface, tomate, maionese da casa, pão brioche.</p>
+      <div class="price">R$ 22,00</div>
     </div>
-    <div class="item">
-        <div class="item-info"><h3>Premium Bacon</h3><p>Blend 160g, cheddar, bacon crocante.</p><div class="item-price">R$ 26,00</div></div>
-        <div class="controls"><button class="qty-btn" onclick="addToCart('Premium Bacon', 26)">+</button></div>
+    <div class="item-control">
+      <button class="qty-btn" onclick="decreaseItem('h1')" id="dec-h1" style="display:none;">-</button>
+      <span class="qty-count" id="count-h1">0</span>
+      <button class="qty-btn add" onclick="openItemCustom('h1', 'Premium Clássico', 22)">+</button>
     </div>
-    <div class="item">
-        <div class="item-info"><h3>Batata Frita</h3><p>Porção média crocante.</p><div class="item-price">R$ 18,00</div></div>
-        <div class="controls"><button class="qty-btn" onclick="addToCart('Batata Frita', 18)">+</button></div>
+  </div>
+
+  <div class="item" data-id="h2" data-name="Premium Bacon" data-price="26">
+    <div class="thumb">🥓</div>
+    <div class="item-info">
+      <h3>Premium Bacon</h3>
+      <p>Blend 160g, cheddar cremoso, bacon crocante, pão brioche tostado.</p>
+      <div class="price">R$ 26,00</div>
     </div>
-
-    <div id="cartBar" class="cart-bar" onclick="openCheckout()">
-        Ver Carrinho - Total: R$ <span id="totalPrice">0,00</span>
+    <div class="item-control">
+      <button class="qty-btn" onclick="decreaseItem('h2')" id="dec-h2" style="display:none;">-</button>
+      <span class="qty-count" id="count-h2">0</span>
+      <button class="qty-btn add" onclick="openItemCustom('h2', 'Premium Bacon', 26)">+</button>
     </div>
+  </div>
+</section>
 
-    <div id="checkoutModal" class="overlay" onclick="closeCheckout()">
-        <div class="modal" onclick="event.stopPropagation()">
-            <h2>Finalizar Pedido</h2>
-            <p>Preencha para concluir:</p>
-            <input type="text" id="custName" placeholder="Seu Nome">
-            <input type="text" id="custAddr" placeholder="Seu Endereço Completo">
-            <button class="btn-full" onclick="sendWhatsApp()">Enviar Pedido (WhatsApp)</button>
-            <button style="background:none; color:white; border:none; width:100%; margin-top:15px; cursor:pointer;" onclick="closeCheckout()">Fechar</button>
-        </div>
+<!-- Seção: Porções -->
+<section id="cat-porcoes">
+  <div class="cat-title">Porções</div>
+
+  <div class="item" data-id="p1" data-name="Batata Frita Grande" data-price="18">
+    <div class="thumb">🍟</div>
+    <div class="item-info">
+      <h3>Batata Frita Grande</h3>
+      <p>Crocante, com sal na medida certa. Serve até 2 pessoas.</p>
+      <div class="price">R$ 18,00</div>
     </div>
+    <div class="item-control">
+      <button class="qty-btn" onclick="decreaseItem('p1')" id="dec-p1" style="display:none;">-</button>
+      <span class="qty-count" id="count-p1">0</span>
+      <button class="qty-btn add" onclick="increaseSimpleItem('p1', 'Batata Frita Grande', 18)">+</button>
+    </div>
+  </div>
+</section>
 
-    <script>
-        let cart = [];
+<!-- Seção: Bebidas -->
+<section id="cat-bebidas">
+  <div class="cat-title">Bebidas</div>
 
-        window.addToCart = function(name, price) {
-            cart.push({name, price});
-            let total = cart.reduce((sum, item) => sum + item.price, 0);
-            document.getElementById('totalPrice').textContent = total.toFixed(2).replace('.', ',');
-            document.getElementById('cartBar').style.display = 'block';
-            alert(name + " adicionado ao carrinho!");
-        };
+  <div class="item" data-id="b1" data-name="Refrigerante Lata" data-price="6">
+    <div class="thumb">🥤</div>
+    <div class="item-info">
+      <h3>Refrigerante Lata</h3>
+      <p>Gelado, direto do freezer.</p>
+      <div class="price">R$ 6,00</div>
+    </div>
+    <div class="item-control">
+      <button class="qty-btn" onclick="decreaseItem('b1')" id="dec-b1" style="display:none;">-</button>
+      <span class="qty-count" id="count-b1">0</span>
+      <button class="qty-btn add" onclick="increaseSimpleItem('b1', 'Refrigerante Lata', 6)">+</button>
+    </div>
+  </div>
+</section>
 
-        window.openCheckout = function() {
-            if(cart.length === 0) { alert("Carrinho vazio!"); return; }
-            document.getElementById('checkoutModal').style.display = 'flex';
-        };
+<footer>
+  <div class="footer-restaurant" id="footerRestName">Hamburgueria Premium · Todos os direitos reservados</div>
+  <div class="footer-actions">
+    <a href="https://wa.me/5598985217952?text=Ol%C3%A1%2C%20gostaria%20de%20um%20card%C3%A1pio%20digital%20para%20o%20meu%20estabelecimento!" target="_blank" class="agency-link">
+      <span class="agency-tag">Sistema Desenvolvido por</span>
+      <span class="agency-name">RC Sistemas & Automação ↗</span>
+    </a>
+    <button class="admin-btn" onclick="openAdminPanel()">⚙️ Painel do Lojista</button>
+  </div>
+</footer>
 
-        window.closeCheckout = function() {
-            document.getElementById('checkoutModal').style.display = 'none';
-        };
-
-        window.sendWhatsApp = function() {
-            let name = document.getElementById('custName').value;
-            let addr = document.getElementById('custAddr').value;
-            
-            if(!name || !addr) {
-                alert("Por favor, preencha nome e endereço!");
-                return;
-            }
-            
-            let total = cart.reduce((sum, item) => sum + item.price, 0);
-            let msg = `🍔 *NOVO PEDIDO*\n\n👤 *Cliente:* ${name}\n📍 *Endereço:* ${addr}\n\n🛒 *Itens:*\n${cart.map(i => i.name).join('\n')}\n\n💰 *Total:* R$ ${total.toFixed(2)}`;
-            
-            window.location.href = "https://wa.me/5598985217952?text=" + encodeURIComponent(msg);
-        };
-    </script>
-</body>
-</html>
+<!-- Barra Inferior do Carrinho -->
+<div class="cart-bar" id="cartBar">
+  <div class="cart-left">
+    <span id="cartCount">0 itens</span>
+    <span id="cartTotal">R$ 0,00</spa
