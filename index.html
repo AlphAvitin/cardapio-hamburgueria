@@ -745,4 +745,575 @@
 <div class="cart-bar" id="cartBar">
   <div class="cart-left">
     <span id="cartCount">0 itens</span>
-    <span id="cartTotal">R$ 0,00</spa
+    <span id="cartTotal">R$ 0,00</span>
+    </div>
+  <button class="cart-btn" id="openOrderBtn" onclick="openPayment()">
+    Conferir pedido ↗
+  </button>
+</div>
+
+<!-- Modal de Adicionais / Opcionais -->
+<div class="custom-overlay" id="customOverlay" onclick="closeItemCustom(event)">
+  <div class="custom-sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <h3 class="custom-title" id="customItemName">Personalizar Lanche</h3>
+    <p class="custom-desc">Escolha adicionais ou opções para seu lanche:</p>
+
+    <div id="customOptionsList">
+      <div class="custom-opt-row">
+        <label>
+          <input type="checkbox" class="opt-check" data-name="Bacon Extra" data-price="4.00"> Bacon Crocante Extra
+        </label>
+        <span style="font-family:'JetBrains Mono'; font-size:12px; color:var(--mango);">+ R$ 4,00</span>
+      </div>
+      <div class="custom-opt-row">
+        <label>
+          <input type="checkbox" class="opt-check" data-name="Queijo Cheddar Extra" data-price="3.50"> Queijo Cheddar Extra
+        </label>
+        <span style="font-family:'JetBrains Mono'; font-size:12px; color:var(--mango);">+ R$ 3,50</span>
+      </div>
+      <div class="custom-opt-row">
+        <label>
+          <input type="checkbox" class="opt-check" data-name="Sem Cebola" data-price="0"> Sem cebola
+        </label>
+        <span style="font-family:'JetBrains Mono'; font-size:12px; color:var(--sage);">Grátis</span>
+      </div>
+    </div>
+
+    <button class="confirm-btn" style="margin-top: 18px;" onclick="confirmItemWithCustom()">
+      Adicionar ao Pedido
+    </button>
+  </div>
+</div>
+
+<!-- Modal de Fechamento do Pedido -->
+<div class="overlay" id="overlay" onclick="closePayment(event)">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <h2>Resumo do Pedido</h2>
+    <p class="sheet-sub">Confira os dados para entrega e selecione o pagamento.</p>
+
+    <div class="form-section">
+      <span class="eyebrow">Itens Selecionados</span>
+      <div class="sheet-items-list" id="sheetItemsList"></div>
+    </div>
+
+    <div class="form-section">
+      <span class="eyebrow">Dados de Entrega</span>
+      <div class="form-group">
+        <label>Nome Completo *</label>
+        <input type="text" id="clientName" class="app-input" placeholder="Ex: João da Silva">
+      </div>
+      <div class="form-group">
+        <label>Endereço de Entrega (Rua, Número, Bairro, Ponto de Ref.) *</label>
+        <input type="text" id="clientAddress" class="app-input" placeholder="Ex: Rua Central, 120, Centro (Próx. à praça)">
+      </div>
+      <div class="form-group">
+        <label>Observações do Pedido (opcional)</label>
+        <textarea id="orderNotes" class="app-textarea" placeholder="Ex: Ponto da carne bem passado, etc."></textarea>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <span class="eyebrow">Cupom de Desconto</span>
+      <div class="coupon-row">
+        <input type="text" id="couponCode" class="app-input" placeholder="Ex: PROMO10" style="text-transform:uppercase; font-family:'JetBrains Mono', monospace;">
+        <button class="coupon-btn" onclick="applyCoupon()">Aplicar</button>
+      </div>
+      <div id="couponFeedback" class="coupon-feedback"></div>
+    </div>
+
+    <div class="order-summary">
+      <div class="summary-row">
+        <span>Subtotal:</span>
+        <span id="sumSubtotal">R$ 0,00</span>
+      </div>
+      <div class="summary-row">
+        <span>Taxa de Entrega:</span>
+        <span id="sumDelivery">R$ 0,00</span>
+      </div>
+      <div class="summary-row" id="discountRow" style="display:none; color:#5FE38A;">
+        <span>Desconto (<span id="discountLabel"></span>):</span>
+        <span id="sumDiscount">- R$ 0,00</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total a Pagar:</span>
+        <span id="sumFinal">R$ 0,00</span>
+      </div>
+    </div>
+
+    <span class="eyebrow" style="margin-left: 2px;">Forma de Pagamento</span>
+    <div class="pay-options" style="margin-top: 6px;">
+      <button class="pay-opt" data-method="Pix" onclick="selectPayment(this)">
+        <span class="pay-icon">🔑</span>
+        <span>Pix</span>
+      </button>
+
+      <button class="pay-opt" data-method="Cartão na entrega" onclick="selectPayment(this)">
+        <span class="pay-icon">💳</span>
+        <span>Cartão na entrega</span>
+      </button>
+
+      <button class="pay-opt" data-method="Dinheiro" onclick="selectPayment(this)">
+        <span class="pay-icon">💵</span>
+        <span>Dinheiro</span>
+      </button>
+    </div>
+
+    <div class="pix-box" id="pixBox">
+      <div class="pix-key" id="pixKey" onclick="copyPix()">
+        <span id="pixKeyDisplay">...</span>
+        <span class="copy-hint" id="copyHint">copiar chave</span>
+      </div>
+    </div>
+
+    <div class="cash-box" id="cashBox">
+      <div class="cash-inputs-group">
+        <div class="cash-toggle">
+          <label>
+            <input type="radio" name="trocoOption" value="nao" checked onchange="toggleTrocoInput(false)"> Sem troco
+          </label>
+          <label>
+            <input type="radio" name="trocoOption" value="sim" onchange="toggleTrocoInput(true)"> Preciso de troco
+          </label>
+        </div>
+        <div id="trocoValueWrap" style="display:none;">
+          <input type="number" id="trocoPara" class="app-input" placeholder="Troco para quanto? Ex: 50" min="0" step="any">
+        </div>
+      </div>
+    </div>
+
+    <button class="confirm-btn" id="confirmBtn" onclick="sendOrder()">
+      Enviar pedido pelo WhatsApp
+    </button>
+  </div>
+</div>
+
+<!-- Modal Painel do Lojista (Histórico Local) -->
+<div class="admin-overlay" id="adminOverlay" onclick="closeAdminPanel(event)">
+  <div class="admin-modal" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <h3 style="font-family:'Fraunces', serif; font-size:18px; color:var(--paper); margin-bottom: 4px;">Últimos Pedidos Recebidos</h3>
+    <p style="font-size: 11.5px; color: var(--sage); margin-bottom: 14px;">Histórico gravado localmente neste aparelho.</p>
+    
+    <div id="adminOrdersList"></div>
+    
+    <button class="confirm-btn" style="margin-top:12px; background:var(--bg); border:1px solid var(--line);" onclick="closeAdminPanel()">
+      Fechar Painel
+    </button>
+  </div>
+</div>
+
+<script>
+  /* ==========================================================
+     1. CONFIGURAÇÃO RÁPIDA
+     ========================================================== */
+  const STORE_CONFIG = {
+    name: "Hamburgueria Premium",
+    city: "Turilândia · MA",
+    whatsapp: "5598985217952",
+    pixKey: "victorugo498@gmail.com",
+    deliveryFee: 5.00,
+    openingHour: 18,
+    closingHour: 24,
+    forceOpen: true 
+  };
+
+  let cart = {}; 
+  let paymentMethod = null;
+  let appliedDiscount = 0;
+  let appliedCouponName = '';
+  let pendingCustomItem = null;
+
+  const COUPONS = {
+    'PROMO10': { type: 'percent', value: 10 },
+    'PREMIUM5': { type: 'fixed', value: 5.00 },
+    'BEMVINDO': { type: 'percent', value: 15 }
+  };
+
+  /* ==========================================================
+     2. REGISTRO FORÇADO DAS FUNÇÕES (À PROVA DE FALHAS)
+     ========================================================== */
+
+  window.initStoreInfo = function(){
+    document.getElementById('pixKeyDisplay').textContent = STORE_CONFIG.pixKey;
+    document.getElementById('headerCity').textContent = STORE_CONFIG.city;
+    document.getElementById('sumDelivery').textContent = 'R$ ' + STORE_CONFIG.deliveryFee.toFixed(2).replace('.', ',');
+  };
+
+  window.checkStoreStatus = function(){
+    const now = new Date();
+    const currentHour = now.getHours();
+    const isOpen = STORE_CONFIG.forceOpen || (currentHour >= STORE_CONFIG.openingHour && currentHour < STORE_CONFIG.closingHour);
+    const dot = document.getElementById('storeStatusDot');
+    const text = document.getElementById('storeStatusText');
+    const confirmBtn = document.getElementById('confirmBtn');
+
+    if(isOpen){
+      dot.className = 'dot open';
+      text.textContent = 'Aberto agora · Taxa de entrega fixa: R$ ' + STORE_CONFIG.deliveryFee.toFixed(2).replace('.', ',');
+      confirmBtn.disabled = false;
+      confirmBtn.textContent = 'Enviar pedido pelo WhatsApp';
+    } else {
+      dot.className = 'dot closed';
+      text.textContent = `Fechado no momento · Abrimos às ${STORE_CONFIG.openingHour}:00`;
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Estabelecimento Fechado';
+    }
+  };
+
+  window.openItemCustom = function(id, name, basePrice){
+    pendingCustomItem = { id: id, name: name, basePrice: basePrice };
+    document.getElementById('customItemName').textContent = name;
+    document.querySelectorAll('.opt-check').forEach(function(c) { c.checked = false; });
+    document.getElementById('customOverlay').classList.add('show');
+  };
+
+  window.closeItemCustom = function(e){
+    if(e) e.preventDefault();
+    document.getElementById('customOverlay').classList.remove('show');
+  };
+
+  window.confirmItemWithCustom = function(){
+    if(!pendingCustomItem) return;
+    let additionals = [];
+    let extraPrice = 0;
+
+    document.querySelectorAll('.opt-check:checked').forEach(function(chk){
+      additionals.push(chk.dataset.name);
+      extraPrice += parseFloat(chk.dataset.price);
+    });
+
+    const itemKey = pendingCustomItem.id + (additionals.length ? '_' + additionals.join('-') : '');
+    const finalItemPrice = pendingCustomItem.basePrice + extraPrice;
+    const finalItemName = pendingCustomItem.name + (additionals.length ? ' (+ ' + additionals.join(', ') + ')' : '');
+
+    if(!cart[itemKey]){
+      cart[itemKey] = { id: pendingCustomItem.id, key: itemKey, name: finalItemName, price: finalItemPrice, qty: 1 };
+    } else {
+      cart[itemKey].qty++;
+    }
+    window.closeItemCustom();
+    window.updateUI();
+  };
+
+  window.increaseSimpleItem = function(id, name, price){
+    if(!cart[id]){
+      cart[id] = { id: id, key: id, name: name, price: price, qty: 1 };
+    } else {
+      cart[id].qty++;
+    }
+    window.updateUI();
+  };
+
+  window.decreaseItem = function(id){
+    for(let key in cart){
+      if(cart[key].id === id){
+        cart[key].qty--;
+        if(cart[key].qty <= 0) delete cart[key];
+        break;
+      }
+    }
+    window.updateUI();
+  };
+
+  window.decreaseCartKey = function(key){
+    if(cart[key]){
+      cart[key].qty--;
+      if(cart[key].qty <= 0) delete cart[key];
+    }
+    window.updateUI();
+  };
+
+  window.increaseCartKey = function(key){
+    if(cart[key]) cart[key].qty++;
+    window.updateUI();
+  };
+
+  window.updateUI = function(){
+    document.querySelectorAll('.item').forEach(function(el){
+      const id = el.dataset.id;
+      const countEl = document.getElementById('count-' + id);
+      const decBtn = document.getElementById('dec-' + id);
+      
+      let totalQtyForId = 0;
+      for (let k in cart) {
+        if (cart[k].id === id) totalQtyForId += cart[k].qty;
+      }
+      
+      if(totalQtyForId > 0){
+        countEl.style.display = 'inline-block';
+        countEl.textContent = totalQtyForId;
+        decBtn.style.display = 'inline-flex';
+      } else {
+        countEl.style.display = 'none';
+        decBtn.style.display = 'none';
+      }
+    });
+
+    const bar = document.getElementById('cartBar');
+    let totalItems = 0;
+    for (let k in cart) totalItems += cart[k].qty;
+
+    if(totalItems > 0){
+      bar.classList.add('show');
+    } else {
+      bar.classList.remove('show');
+      window.closePayment();
+    }
+
+    document.getElementById('cartCount').textContent = totalItems + (totalItems === 1 ? ' item' : ' itens');
+    window.recalcTotals();
+    window.renderSheetItems();
+  };
+
+  window.getSubtotal = function(){
+    let sub = 0;
+    for (let k in cart) sub += (cart[k].price * cart[k].qty);
+    return sub;
+  };
+
+  window.getFinalTotal = function(){
+    const subtotal = window.getSubtotal();
+    if(subtotal === 0) return 0;
+    return Math.max(0, subtotal + STORE_CONFIG.deliveryFee - appliedDiscount);
+  };
+
+  window.recalcTotals = function(){
+    const subtotal = window.getSubtotal();
+    if(appliedCouponName && COUPONS[appliedCouponName]){
+      const cup = COUPONS[appliedCouponName];
+      if(cup.type === 'percent'){
+        appliedDiscount = (subtotal * cup.value) / 100;
+      } else {
+        appliedDiscount = cup.value;
+      }
+    } else {
+      appliedDiscount = 0;
+    }
+
+    const finalTotal = window.getFinalTotal();
+    document.getElementById('sumSubtotal').textContent = 'R$ ' + subtotal.toFixed(2).replace('.', ',');
+    
+    const discRow = document.getElementById('discountRow');
+    if(appliedDiscount > 0){
+      discRow.style.display = 'flex';
+      document.getElementById('discountLabel').textContent = appliedCouponName;
+      document.getElementById('sumDiscount').textContent = '- R$ ' + appliedDiscount.toFixed(2).replace('.', ',');
+    } else {
+      discRow.style.display = 'none';
+    }
+
+    document.getElementById('sumFinal').textContent = 'R$ ' + finalTotal.toFixed(2).replace('.', ',');
+    document.getElementById('cartTotal').textContent = 'R$ ' + finalTotal.toFixed(2).replace('.', ',');
+  };
+
+  window.renderSheetItems = function(){
+    const list = document.getElementById('sheetItemsList');
+    const items = [];
+    for (let k in cart) items.push(cart[k]);
+    
+    if(items.length === 0){
+      list.innerHTML = '<span style="color:var(--sage); font-size:12px;">Nenhum item selecionado.</span>';
+      return;
+    }
+
+    list.innerHTML = items.map(function(i){
+      return '<div class="sheet-item-row">' +
+             '<div><strong>' + i.name + '</strong><br><span style="color:var(--sage); font-size:11.5px;">R$ ' + (i.price * i.qty).toFixed(2).replace('.', ',') + '</span></div>' +
+             '<div class="sheet-item-ctrls">' +
+             '<button class="sheet-qty-btn" onclick="decreaseCartKey(\'' + i.key + '\')">-</button>' +
+             '<span style="font-family:\'JetBrains Mono\'; font-weight:600;">' + i.qty + '</span>' +
+             '<button class="sheet-qty-btn" onclick="increaseCartKey(\'' + i.key + '\')">+</button>' +
+             '</div></div>';
+    }).join('');
+  };
+
+  window.applyCoupon = function(){
+    const input = document.getElementById('couponCode');
+    const code = input.value.trim().toUpperCase();
+    const feedback = document.getElementById('couponFeedback');
+
+    if(!code){
+      feedback.className = 'coupon-feedback error';
+      feedback.textContent = 'Digite o código do cupom.';
+      return;
+    }
+
+    if(COUPONS[code]){
+      appliedCouponName = code;
+      window.recalcTotals();
+      feedback.className = 'coupon-feedback success';
+      feedback.textContent = 'Cupom ' + code + ' aplicado!';
+    } else {
+      feedback.className = 'coupon-feedback error';
+      feedback.textContent = 'Cupom inválido ou expirado.';
+    }
+  };
+
+  window.openPayment = function(){
+    let totalItems = 0;
+    for (let k in cart) totalItems += cart[k].qty;
+    if(totalItems === 0) return;
+    window.updateUI();
+    document.getElementById('overlay').classList.add('show');
+  };
+
+  window.closePayment = function(e){
+    if(e) e.preventDefault();
+    document.getElementById('overlay').classList.remove('show');
+  };
+
+  window.selectPayment = function(btn){
+    document.querySelectorAll('.pay-opt').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    paymentMethod = btn.dataset.method;
+    
+    document.getElementById('pixBox').classList.toggle('show', paymentMethod === 'Pix');
+    document.getElementById('cashBox').classList.toggle('show', paymentMethod === 'Dinheiro');
+  };
+
+  window.toggleTrocoInput = function(show){
+    document.getElementById('trocoValueWrap').style.display = show ? 'block' : 'none';
+  };
+
+  window.copyPix = function(){
+    // Correção do erro no celular: removido o "?."
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(STORE_CONFIG.pixKey);
+    }
+    const hint = document.getElementById('copyHint');
+    hint.textContent = 'copiado ✓';
+    setTimeout(function(){ hint.textContent = 'copiar chave'; }, 1400);
+  };
+
+  window.getNextOrderNumber = function(){
+    let lastNum = parseInt(localStorage.getItem('hamburgueria_order_seq') || '100');
+    let nextNum = lastNum + 1;
+    localStorage.setItem('hamburgueria_order_seq', nextNum);
+    return 'Nº ' + nextNum;
+  };
+
+  window.saveOrderToLocalHistory = function(orderData){
+    let orders = JSON.parse(localStorage.getItem('rc_saved_orders') || '[]');
+    orders.unshift(orderData);
+    if(orders.length > 20) orders.pop();
+    localStorage.setItem('rc_saved_orders', JSON.stringify(orders));
+  };
+
+  window.openAdminPanel = function(){
+    const list = document.getElementById('adminOrdersList');
+    const orders = JSON.parse(localStorage.getItem('rc_saved_orders') || '[]');
+    
+    if(orders.length === 0){
+      list.innerHTML = '<span style="color:var(--sage); font-size:12px;">Nenhum pedido registrado ainda.</span>';
+    } else {
+      list.innerHTML = orders.map(function(o){
+        return '<div class="admin-order-card">' +
+               '<div style="display:flex; justify-content:space-between; color:var(--mango); font-weight:600;">' +
+               '<span>' + o.orderNum + '</span><span>R$ ' + o.total + '</span></div>' +
+               '<div style="color:var(--paper); margin-top:2px;"><strong>' + o.client + '</strong> (' + o.payment + ')</div>' +
+               '<div style="color:var(--sage); font-size:11px; margin-top:2px;">' + o.items + '</div></div>';
+      }).join('');
+    }
+    document.getElementById('adminOverlay').classList.add('show');
+  };
+
+  window.closeAdminPanel = function(e){
+    if(e) e.preventDefault();
+    document.getElementById('adminOverlay').classList.remove('show');
+  };
+
+  window.sendOrder = function(){
+    const clientName = document.getElementById('clientName').value.trim();
+    const clientAddress = document.getElementById('clientAddress').value.trim();
+    const orderNotes = document.getElementById('orderNotes').value.trim();
+
+    if(!clientName){
+      alert('Por favor, informe seu nome para a entrega.');
+      document.getElementById('clientName').focus();
+      return;
+    }
+    if(!clientAddress){
+      alert('Por favor, informe seu endereço de entrega.');
+      document.getElementById('clientAddress').focus();
+      return;
+    }
+    if(!paymentMethod){
+      alert('Por favor, escolha uma forma de pagamento.');
+      return;
+    }
+
+    const orderNumber = window.getNextOrderNumber();
+    const subtotal = window.getSubtotal();
+    const finalTotal = window.getFinalTotal();
+
+    let msg = '🍔 *NOVO PEDIDO: ' + orderNumber + '*\n';
+    msg += '--------------------------------\n';
+    msg += '👤 *Cliente:* ' + clientName + '\n';
+    msg += '📍 *Endereço:* ' + clientAddress + '\n';
+    if(orderNotes) msg += '📝 *Obs:* ' + orderNotes + '\n';
+    msg += '--------------------------------\n*ITENS:*\n';
+
+    let itemsSummaryList = [];
+    for(let k in cart){
+      let i = cart[k];
+      msg += '• ' + i.qty + 'x ' + i.name + ' — R$ ' + (i.price * i.qty).toFixed(2).replace('.', ',') + '\n';
+      itemsSummaryList.push(i.qty + 'x ' + i.name);
+    }
+
+    msg += '--------------------------------\n';
+    msg += 'Subtotal: R$ ' + subtotal.toFixed(2).replace('.', ',') + '\n';
+    msg += 'Taxa de Entrega: R$ ' + STORE_CONFIG.deliveryFee.toFixed(2).replace('.', ',') + '\n';
+    if(appliedDiscount > 0){
+      msg += 'Cupom (' + appliedCouponName + '): - R$ ' + appliedDiscount.toFixed(2).replace('.', ',') + '\n';
+    }
+    msg += '*Total a Pagar: R$ ' + finalTotal.toFixed(2).replace('.', ',') + '*\n\n';
+    msg += '💳 *Pagamento:* ' + paymentMethod;
+
+    if(paymentMethod === 'Dinheiro'){
+      const trocoOpt = document.querySelector('input[name="trocoOption"]:checked').value;
+      if(trocoOpt === 'sim'){
+        const trocoVal = document.getElementById('trocoPara').value.trim();
+        msg += ' (Troco para: R$ ' + (trocoVal ? trocoVal : '___') + ')';
+      } else {
+        msg += ' (Sem necessidade de troco)';
+           }
+    }
+
+    window.saveOrderToLocalHistory({
+      orderNum: orderNumber,
+      client: clientName,
+      payment: paymentMethod,
+      total: finalTotal.toFixed(2).replace('.', ','),
+      items: itemsSummaryList.join(', ')
+    });
+    
+    const url = 'https://wa.me/' + STORE_CONFIG.whatsapp + '?text=' + encodeURIComponent(msg);
+    window.open(url, '_blank');
+    window.closePayment();
+  };
+
+  // Iniciar após o carregamento da página
+  try {
+    window.initStoreInfo();
+    window.checkStoreStatus();
+  } catch (error) {
+    console.log("Erro na inicialização", error);
+  }
+
+  let currentSlide = 0;
+  setInterval(function(){
+    const slides = document.querySelectorAll('.slide');
+    const dots = document.querySelectorAll('.dot-indicator');
+    if(slides.length === 0) return;
+    slides[currentSlide].classList.remove('active');
+    dots[currentSlide].classList.remove('active');
+    currentSlide = (currentSlide + 1) % slides.length;
+    slides[currentSlide].classList.add('active');
+    dots[currentSlide].classList.add('active');
+  }, 3500);
+
+</script>
+</body>
+</html>
