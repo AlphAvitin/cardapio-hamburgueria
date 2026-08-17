@@ -3,45 +3,65 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hamburgueria Premium</title>
+    <title>Hamburgueria Premium | Cardápio Digital</title>
     <style>
-        body { background: #142722; color: #F4EFE1; font-family: sans-serif; margin: 0; padding-bottom: 120px; }
-        .header { text-align: center; padding: 20px; border-bottom: 1px solid #333; }
+        :root { --bg: #142722; --mango: #FFB627; --paper: #F4EFE1; --papaya: #E8552F; --sage: #7FA595; }
+        body { background: var(--bg); color: var(--paper); font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; padding-bottom: 120px; }
+        
+        /* Banner */
+        .hero { height: 220px; background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800'); background-size: cover; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 28px; font-weight: bold; }
+        
+        /* Menu */
+        .section-title { padding: 20px 20px 0; color: var(--mango); font-size: 20px; border-bottom: 1px solid #333; }
         .item { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid #333; }
-        .qty-btn { background: #FFB627; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .cart-bar { position: fixed; bottom: 0; width: 100%; background: #FFB627; color: #142722; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; display: none; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
-        .modal { background: #1C332C; padding: 20px; border-radius: 10px; width: 80%; color: white; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
+        .item-info h3 { margin: 0 0 5px; font-size: 17px; }
+        .item-info p { margin: 0; font-size: 13px; color: var(--sage); }
+        .item-price { margin-top: 5px; color: var(--mango); font-weight: bold; }
+        
+        /* Controles */
+        .controls { display: flex; align-items: center; gap: 15px; }
+        .qty-btn { background: var(--mango); border: none; padding: 10px 18px; border-radius: 8px; font-weight: bold; cursor: pointer; color: var(--bg); }
+        
+        /* Carrinho Fixo */
+        .cart-bar { position: fixed; bottom: 0; width: 100%; background: var(--papaya); color: white; padding: 18px; text-align: center; font-weight: bold; cursor: pointer; box-shadow: 0 -5px 15px rgba(0,0,0,0.3); }
+        
+        /* Modal */
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; justify-content: center; align-items: center; padding: 20px; }
+        .modal { background: #1C332C; padding: 30px; border-radius: 15px; width: 100%; max-width: 400px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 5px; border: none; box-sizing: border-box; }
+        .btn-full { width: 100%; padding: 15px; border-radius: 5px; border: none; background: var(--mango); color: var(--bg); font-weight: bold; cursor: pointer; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Hamburgueria Premium</h1>
-    </div>
+    <div class="hero">Hamburgueria Premium</div>
 
+    <div class="section-title">Nossos Hamburgueres</div>
     <div class="item">
-        <div><h3>Premium Clássico</h3><p>R$ 22,00</p></div>
-        <button class="qty-btn" onclick="addToCart('Premium Clássico', 22)">+</button>
+        <div class="item-info"><h3>Premium Clássico</h3><p>Blend 160g, cheddar, alface e molho.</p><div class="item-price">R$ 22,00</div></div>
+        <div class="controls"><button class="qty-btn" onclick="addToCart('Premium Clássico', 22)">+</button></div>
     </div>
-
     <div class="item">
-        <div><h3>Premium Bacon</h3><p>R$ 26,00</p></div>
-        <button class="qty-btn" onclick="addToCart('Premium Bacon', 26)">+</button>
+        <div class="item-info"><h3>Premium Bacon</h3><p>Blend 160g, cheddar, bacon crocante.</p><div class="item-price">R$ 26,00</div></div>
+        <div class="controls"><button class="qty-btn" onclick="addToCart('Premium Bacon', 26)">+</button></div>
+    </div>
+    <div class="item">
+        <div class="item-info"><h3>Batata Frita</h3><p>Porção média crocante.</p><div class="item-price">R$ 18,00</div></div>
+        <div class="controls"><button class="qty-btn" onclick="addToCart('Batata Frita', 18)">+</button></div>
     </div>
 
     <div id="cartBar" class="cart-bar" onclick="openCheckout()">
-        Ver Carrinho - Total: R$ <span id="totalPrice">0</span>
+        Ver Carrinho - Total: R$ <span id="totalPrice">0,00</span>
     </div>
 
     <div id="checkoutModal" class="overlay" onclick="closeCheckout()">
         <div class="modal" onclick="event.stopPropagation()">
             <h2>Finalizar Pedido</h2>
+            <p>Preencha para concluir:</p>
             <input type="text" id="custName" placeholder="Seu Nome">
-            <input type="text" id="custAddr" placeholder="Seu Endereço">
-            <button class="qty-btn" onclick="sendWhatsApp()">Enviar WhatsApp</button>
-            <p style="margin-top:10px; cursor:pointer;" onclick="closeCheckout()">Fechar</p>
+            <input type="text" id="custAddr" placeholder="Seu Endereço Completo">
+            <button class="btn-full" onclick="sendWhatsApp()">Enviar Pedido (WhatsApp)</button>
+            <button style="background:none; color:white; border:none; width:100%; margin-top:15px; cursor:pointer;" onclick="closeCheckout()">Fechar</button>
         </div>
     </div>
 
@@ -50,18 +70,14 @@
 
         window.addToCart = function(name, price) {
             cart.push({name, price});
-            updateUI();
-            alert(name + " adicionado!");
-        };
-
-        window.updateUI = function() {
             let total = cart.reduce((sum, item) => sum + item.price, 0);
-            let bar = document.getElementById('cartBar');
-            document.getElementById('totalPrice').textContent = total.toFixed(2);
-            bar.style.display = cart.length > 0 ? 'block' : 'none';
+            document.getElementById('totalPrice').textContent = total.toFixed(2).replace('.', ',');
+            document.getElementById('cartBar').style.display = 'block';
+            alert(name + " adicionado ao carrinho!");
         };
 
         window.openCheckout = function() {
+            if(cart.length === 0) { alert("Carrinho vazio!"); return; }
             document.getElementById('checkoutModal').style.display = 'flex';
         };
 
@@ -72,8 +88,15 @@
         window.sendWhatsApp = function() {
             let name = document.getElementById('custName').value;
             let addr = document.getElementById('custAddr').value;
+            
+            if(!name || !addr) {
+                alert("Por favor, preencha nome e endereço!");
+                return;
+            }
+            
             let total = cart.reduce((sum, item) => sum + item.price, 0);
-            let msg = `Pedido: ${cart.map(i => i.name).join(', ')} | Total: R$ ${total} | Cliente: ${name} | End: ${addr}`;
+            let msg = `🍔 *NOVO PEDIDO*\n\n👤 *Cliente:* ${name}\n📍 *Endereço:* ${addr}\n\n🛒 *Itens:*\n${cart.map(i => i.name).join('\n')}\n\n💰 *Total:* R$ ${total.toFixed(2)}`;
+            
             window.location.href = "https://wa.me/5598985217952?text=" + encodeURIComponent(msg);
         };
     </script>
