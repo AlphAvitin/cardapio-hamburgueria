@@ -5,12 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hamburgueria Premium</title>
     <style>
-        body { background: #142722; color: #F4EFE1; font-family: sans-serif; margin: 0; padding-bottom: 80px; }
+        body { background: #142722; color: #F4EFE1; font-family: sans-serif; margin: 0; padding-bottom: 100px; }
         .item { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid #333; }
-        .qty-btn { background: #FFB627; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; font-size: 18px; }
+        .qty-btn { background: #FFB627; border: none; padding: 10px 18px; border-radius: 5px; font-weight: bold; cursor: pointer; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
         .modal { background: #1C332C; padding: 30px; border-radius: 15px; width: 85%; text-align: center; }
-        .confirm-btn { background: #FFB627; border: none; padding: 15px 30px; border-radius: 5px; cursor: pointer; margin-top: 20px; width: 100%; font-size: 16px; }
+        .confirm-btn { background: #FFB627; border: none; padding: 15px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 15px; }
     </style>
 </head>
 <body>
@@ -22,7 +22,7 @@
             <h3>Premium Clássico</h3>
             <p>R$ 22,00</p>
         </div>
-        <button class="qty-btn" onclick="openModal('Premium Clássico')">+</button>
+        <button class="qty-btn" onclick="openModal('Premium Clássico', 22)">+</button>
     </div>
 
     <div class="item">
@@ -30,20 +30,21 @@
             <h3>Premium Bacon</h3>
             <p>R$ 26,00</p>
         </div>
-        <button class="qty-btn" onclick="openModal('Premium Bacon')">+</button>
+        <button class="qty-btn" onclick="openModal('Premium Bacon', 26)">+</button>
     </div>
 
     <!-- Modal -->
     <div id="mainModal" class="overlay" onclick="closeModal()">
         <div class="modal" onclick="event.stopPropagation()">
             <h2 id="modalTitle">Item</h2>
-            <p>Adicionar ao pedido?</p>
-            <button class="confirm-btn" onclick="closeModal()">Confirmar</button>
+            <p>Adicionado ao carrinho!</p>
+            <button class="confirm-btn" onclick="closeModal()">OK</button>
         </div>
     </div>
 
     <script>
-        window.openModal = function(nome) {
+        window.openModal = function(nome, preco) {
+            console.log("Adicionando: " + nome + " - R$" + preco);
             document.getElementById('modalTitle').textContent = nome;
             document.getElementById('mainModal').style.display = 'flex';
         };
