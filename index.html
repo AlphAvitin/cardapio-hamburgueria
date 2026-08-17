@@ -5,52 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hamburgueria Premium</title>
     <style>
-        body { background: #142722; color: #F4EFE1; font-family: sans-serif; margin: 0; padding-bottom: 100px; }
+        body { background: #142722; color: #F4EFE1; font-family: sans-serif; margin: 0; padding-bottom: 120px; }
+        .header { text-align: center; padding: 20px; border-bottom: 1px solid #333; }
         .item { display: flex; align-items: center; justify-content: space-between; padding: 20px; border-bottom: 1px solid #333; }
-        .qty-btn { background: #FFB627; border: none; padding: 10px 18px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 100; justify-content: center; align-items: center; }
-        .modal { background: #1C332C; padding: 30px; border-radius: 15px; width: 85%; text-align: center; }
-        .confirm-btn { background: #FFB627; border: none; padding: 15px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 15px; }
+        .qty-btn { background: #FFB627; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .cart-bar { position: fixed; bottom: 0; width: 100%; background: #FFB627; color: #142722; padding: 15px; text-align: center; font-weight: bold; cursor: pointer; display: none; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; justify-content: center; align-items: center; }
+        .modal { background: #1C332C; padding: 20px; border-radius: 10px; width: 80%; color: white; }
+        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 5px; border: none; }
     </style>
 </head>
 <body>
 
-    <h1 style="text-align: center; margin: 20px 0;">Hamburgueria Premium</h1>
-
-    <div class="item">
-        <div>
-            <h3>Premium Clássico</h3>
-            <p>R$ 22,00</p>
-        </div>
-        <button class="qty-btn" onclick="openModal('Premium Clássico', 22)">+</button>
+    <div class="header">
+        <h1>Hamburgueria Premium</h1>
     </div>
 
     <div class="item">
-        <div>
-            <h3>Premium Bacon</h3>
-            <p>R$ 26,00</p>
-        </div>
-        <button class="qty-btn" onclick="openModal('Premium Bacon', 26)">+</button>
+        <div><h3>Premium Clássico</h3><p>R$ 22,00</p></div>
+        <button class="qty-btn" onclick="addToCart('Premium Clássico', 22)">+</button>
     </div>
 
-    <!-- Modal -->
-    <div id="mainModal" class="overlay" onclick="closeModal()">
+    <div class="item">
+        <div><h3>Premium Bacon</h3><p>R$ 26,00</p></div>
+        <button class="qty-btn" onclick="addToCart('Premium Bacon', 26)">+</button>
+    </div>
+
+    <div id="cartBar" class="cart-bar" onclick="openCheckout()">
+        Ver Carrinho - Total: R$ <span id="totalPrice">0</span>
+    </div>
+
+    <div id="checkoutModal" class="overlay" onclick="closeCheckout()">
         <div class="modal" onclick="event.stopPropagation()">
-            <h2 id="modalTitle">Item</h2>
-            <p>Adicionado ao carrinho!</p>
-            <button class="confirm-btn" onclick="closeModal()">OK</button>
+            <h2>Finalizar Pedido</h2>
+            <input type="text" id="custName" placeholder="Seu Nome">
+            <input type="text" id="custAddr" placeholder="Seu Endereço">
+            <button class="qty-btn" onclick="sendWhatsApp()">Enviar WhatsApp</button>
+            <p style="margin-top:10px; cursor:pointer;" onclick="closeCheckout()">Fechar</p>
         </div>
     </div>
 
     <script>
-        window.openModal = function(nome, preco) {
-            console.log("Adicionando: " + nome + " - R$" + preco);
-            document.getElementById('modalTitle').textContent = nome;
-            document.getElementById('mainModal').style.display = 'flex';
+        let cart = [];
+
+        window.addToCart = function(name, price) {
+            cart.push({name, price});
+            updateUI();
+            alert(name + " adicionado!");
         };
 
-        window.closeModal = function() {
-            document.getElementById('mainModal').style.display = 'none';
+        window.updateUI = function() {
+            let total = cart.reduce((sum, item) => sum + item.price, 0);
+            let bar = document.getElementById('cartBar');
+            document.getElementById('totalPrice').textContent = total.toFixed(2);
+            bar.style.display = cart.length > 0 ? 'block' : 'none';
+        };
+
+        window.openCheckout = function() {
+            document.getElementById('checkoutModal').style.display = 'flex';
+        };
+
+        window.closeCheckout = function() {
+            document.getElementById('checkoutModal').style.display = 'none';
+        };
+
+        window.sendWhatsApp = function() {
+            let name = document.getElementById('custName').value;
+            let addr = document.getElementById('custAddr').value;
+            let total = cart.reduce((sum, item) => sum + item.price, 0);
+            let msg = `Pedido: ${cart.map(i => i.name).join(', ')} | Total: R$ ${total} | Cliente: ${name} | End: ${addr}`;
+            window.location.href = "https://wa.me/5598985217952?text=" + encodeURIComponent(msg);
         };
     </script>
 </body>
